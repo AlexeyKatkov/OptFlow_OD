@@ -8,3 +8,4 @@ with h5py.File(file_path, "r") as f:
     # print(list(f.keys()))  # например ['color', 'imu', 'pose']
     a = np.array(f['trajectory_0000']['camera_data']['color_down'])  # например ['acc', 'gyro', 'timestamps']
 print(a)
+print(a)

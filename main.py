@@ -17,3 +17,4 @@ for img_name in images:
         break
 
 cv2.destroyAllWindows()
+print("hhh")
