@@ -1,91 +1,70 @@
-import h5py
-import numpy as np
 import cv2
 import os
+import numpy as np
 
-# Пути к файлам
-file_path = "C:\\Users\\User\\Desktop\\drones\\opt_dan\\downloads\\0000\\sensor_records.hdf5"
-img_folder = "C:\\Users\\User\\Desktop\\drones\\opt_dan\\downloads\\0000\\frames"
+# Папка с кадрами
+img_folder = r"C:\Users\User\Desktop\drones\opt_dan\downloads\0000\frames"
+images = sorted(os.listdir(img_folder))
 
-# Загружаем данные IMU
-with h5py.File(file_path, "r") as f:
-    traj_group = f['trajectory_0000']
-    imu_group = traj_group['groundtruth']
-    
-    gyro_data = np.array(imu_group['position'])  # Гироскоп [x, y, z]
-    
-    timestamps = np.arange(len(gyro_data)) / 100.0  # t = k/100
+# Параметры детектора и трекера
+feature_params = dict(maxCorners=1000, qualityLevel=0.01, minDistance=5, blockSize=7)
+lk_params = dict(winSize=(15,15), maxLevel=2,
+                 criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01),
+                 flags=0, minEigThreshold=1e-4)
 
-# Получаем и сортируем кадры
-images = os.listdir(img_folder)
-total_frames = len(images)
+scale = 0.02
+pos = np.zeros(2, dtype=np.float64)
+trajectory_points = []
 
-print(f"Всего кадров: {total_frames}")
-print(f"Всего замеров IMU: {len(gyro_data)}")
-print(f"Длительность записи: {timestamps[-1]:.2f} секунд")
+# Начальные кадры
+idx = 0
+old_frame = cv2.imread(os.path.join(img_folder, images[idx]))
+old_gray = cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
+p0 = cv2.goodFeaturesToTrack(old_gray, mask=None, **feature_params)
 
-# Определяем частоту кадров видео
-if total_frames > 1 and timestamps[-1] > 0:
-    video_fps = total_frames / timestamps[-1]
-    print(f"Примерная частота видео: {video_fps:.2f} FPS")
-else:
-    video_fps = 25.0  # Значение по умолчанию
+while True:
+    frame = old_frame.copy()
 
-cv2.namedWindow("Video with IMU Data", cv2.WINDOW_NORMAL)
+    # Рисуем траекторию
+    for point in trajectory_points:
+        cv2.circle(frame, tuple(point.astype(int)), 2, (255,0,0), -1)
 
-for frame_idx, img_name in enumerate(images):
-    img_path = os.path.join(img_folder, img_name)
-    frame = cv2.imread(img_path)
-    
-    if frame is None:
-        continue
-    
-    # Вычисляем время для текущего кадра
-    current_time = frame_idx / video_fps
-    
-    # Находим ближайший замер IMU
-    imu_idx = int(current_time * 100)  # т.к. IMU на 100 Гц
-    imu_idx = min(imu_idx, len(gyro_data) - 1)
-    
-    current_gyro = gyro_data[imu_idx]
-    
-    display_frame = frame.copy()
-    
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    font_scale = 0.6
-    font_color = (0, 255, 0)
-    line_type = 2
-    
-    y_offset = 30
-    line_height = 30
-    
-    cv2.putText(display_frame, f"Frame: {frame_idx}/{total_frames}", 
-                (10, y_offset), font, font_scale, font_color, line_type)
-    cv2.putText(display_frame, f"Time: {current_time:.2f}s", 
-                (10, y_offset + line_height), font, font_scale, font_color, line_type)
-    cv2.putText(display_frame, "Position:", 
-                (10, y_offset + line_height * 2), font, font_scale, font_color, line_type)
-    cv2.putText(display_frame, f"  X: {current_gyro[0]:.4f}", 
-                (10, y_offset + line_height * 3), font, font_scale, font_color, line_type)
-    cv2.putText(display_frame, f"  Y: {current_gyro[1]:.4f}", 
-                (10, y_offset + line_height * 4), font, font_scale, font_color, line_type)
-    cv2.putText(display_frame, f"  Z: {current_gyro[2]:.4f}", 
-                (10, y_offset + line_height * 5), font, font_scale, font_color, line_type)
-    
-    # Отображаем кадр в регулируемом окне
-    cv2.imshow("Video with IMU Data", display_frame)
-    
-    delay = int(1000 / video_fps)
-    key = cv2.waitKey(delay) & 0xFF
-    
-    if key == ord('q'):
+    cv2.imshow("Optical Flow", frame)
+    key = cv2.waitKey(0)  # ждём нажатия клавиши
+
+    if key == 27:  # ESC — выход
         break
-    elif key == ord('p'):
-        while True:
-            key2 = cv2.waitKey(1)
-            if key2 == ord('p') or key2 == ord('q'):
-                break
-        if key2 == ord('q'):
-            break
+    elif key == 81:  # ←
+        idx = max(0, idx - 1)
+    elif key == 83:  # →
+        idx = min(len(images)-1, idx + 1)
+    else:
+        continue  # игнорируем другие клавиши
+
+    # Загружаем следующий кадр
+    new_frame = cv2.imread(os.path.join(img_folder, images[idx]))
+    frame_gray = cv2.cvtColor(new_frame, cv2.COLOR_BGR2GRAY)
+
+    if p0 is None or len(p0) < 50:
+        p0 = cv2.goodFeaturesToTrack(frame_gray, mask=None, **feature_params)
+
+    # Вычисляем оптический поток
+    p1, st, err = cv2.calcOpticalFlowPyrLK(old_gray, frame_gray, p0, None, **lk_params)
+
+    if p1 is not None:
+        good_new = p1[st==1]
+        good_old = p0.reshape(-1,2)[st==1]
+        flow = good_new - good_old
+        if flow.size > 0:
+            med = np.median(flow, axis=0)
+            dx, dy = -med[0], med[1]
+            pos += np.array([dx, dy]) * scale
+            trajectory_points.append(pos.copy())
+
+        # обновляем треки
+        p0 = good_new.reshape(-1,1,2).astype(np.float32)
+
+    old_gray = frame_gray.copy()
+    old_frame = new_frame.copy()
 
 cv2.destroyAllWindows()
