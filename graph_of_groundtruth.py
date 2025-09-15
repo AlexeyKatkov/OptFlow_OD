@@ -2,6 +2,10 @@ import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 
+#1232321312
+#1232321312
+
+
 # Пути к файлам
 file_path = "C:\\Users\\User\\Desktop\\drones\\opt_dan\\downloads\\0000\\sensor_records.hdf5"
 
@@ -29,3 +33,4 @@ plt.show()
 
 # Сохраняем
 np.save("C:\\Users\\User\\Desktop\\drones\\opt_dan\\coords\\trajectory.npy", position_data)
+print("123")
