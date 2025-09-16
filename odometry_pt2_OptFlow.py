@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 
 # Папка с кадрами
-img_folder = r"C:\\Users\\User\\Desktop\\drones\\opt_dan\\downloads\\0000\\frames"
+img_folder = "C:\\Users\\User\\Desktop\\drones\\opt_dan\\downloads\\0000\\frames"
 
 # Сортировка файлов
 images = sorted(os.listdir(img_folder))
@@ -33,7 +33,7 @@ K = np.array([[focal_length, 0, principal_point[0]],
 
 
 # ---- Параметры детектора и трекера ---- После гридсерча
-feature_params = dict(maxCorners=1000, qualityLevel=0.01, minDistance=5, blockSize=7)
+feature_params = dict(maxCorners=1000, qualityLevel=0.1, minDistance=5, blockSize=7)
 lk_params = dict(winSize=(15,15), maxLevel=2,
                  criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01),
                  flags=0, minEigThreshold=1e-4)

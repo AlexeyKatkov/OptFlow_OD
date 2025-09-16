@@ -12,7 +12,7 @@ ax = fig.add_subplot(111, projection='3d')
 
 
 # Папка с кадрами
-img_folder = r"C:\\Users\\User\\Desktop\\drones\\opt_dan\\downloads\\0000\\frames"
+img_folder = "C:\\Users\\User\\Desktop\\drones\\opt_dan\\downloads\\0000\\frames"
 
 # Сортировка файлов
 images = sorted(os.listdir(img_folder))
