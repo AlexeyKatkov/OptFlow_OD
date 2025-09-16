@@ -15,7 +15,10 @@ lk_params = dict(winSize=(15,15), maxLevel=2,
 
 # Чтение первого кадра
 frame_idx = 0
+SIZE = (1024,1024)
 old_frame = cv2.imread(os.path.join(img_folder, images[0]))
+old_frame = cv2.resize(old_frame, SIZE)
+
 old_gray = cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
 p0 = cv2.goodFeaturesToTrack(old_gray, mask=None, **feature_params)
 
@@ -28,6 +31,7 @@ trajectory_points = []
 
 for img_name in tqdm(images[1:]):
     frame = cv2.imread(os.path.join(img_folder, img_name))
+    frame = cv2.resize(frame, SIZE)
     frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     # Переинициализация точек, если мало
