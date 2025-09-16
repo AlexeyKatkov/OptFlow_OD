@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 # Папка с кадрами
-img_folder = r"C:\Users\User\Desktop\drones\opt_dan\downloads\0000\frames"
+img_folder = r"/media/nil-risu/Files/gridsearch/0000/frames"
 images = sorted(os.listdir(img_folder))
 
 # Параметры детектора и трекера

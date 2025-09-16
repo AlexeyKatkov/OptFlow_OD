@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 
 # Папка с кадрами
-img_folder = r"C:\\Users\\User\\Desktop\\drones\\opt_dan\\downloads\\0000\\frames"
+img_folder = r"/media/nil-risu/Files/gridsearch/0000/frames"
 
 # Сортировка файлов
 images = sorted(os.listdir(img_folder))
@@ -115,7 +115,7 @@ for img_name in tqdm(images[1:]):
 traj = np.array(trajectory_points)
 
 # Сохраняем
-np.save("C:\\Users\\User\\Desktop\\drones\\opt_dan\\coords\\optflow_trajectory.npy", trajectory_points)
+# np.save("C:\\Users\\User\\Desktop\\drones\\opt_dan\\coords\\optflow_trajectory.npy", trajectory_points)
 plt.figure()
 
 # Основная траектория
