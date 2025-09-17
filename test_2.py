@@ -4,6 +4,7 @@ import numpy as np
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
+# img_folder = "/media/nil-risu/Files/gridsearch/0000/frames"
 img_folder = "C:\\Users\\User\\Desktop\\drones\\opt_dan\\downloads\\0000\\frames"
 images = sorted(os.listdir(img_folder))
 

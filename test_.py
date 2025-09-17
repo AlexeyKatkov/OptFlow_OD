@@ -4,6 +4,7 @@ import numpy as np
 import time
 
 # Папка с кадрами
+# img_folder = "/media/nil-risu/Files/gridsearch/0000/frames"
 img_folder = "C:\\Users\\User\\Desktop\\drones\\opt_dan\\downloads\\0000\\frames"
 images = sorted(os.listdir(img_folder))
 
