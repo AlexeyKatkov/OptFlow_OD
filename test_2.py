@@ -5,18 +5,21 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 # img_folder = "/media/nil-risu/Files/gridsearch/0000/frames"
-img_folder = "C:\\Users\\User\\Desktop\\drones\\opt_dan\\downloads\\0000\\frames"
+# img_folder = "C:\\Users\\User\\Desktop\\drones\\opt_dan\\downloads\\0000\\frames"
+# img_folder = r"C:\Users\User\Desktop\drones\opt_dan\downloads\my_cutter_res\diagonal_target_frames_step25_size_1024"
+img_folder = r"C:\Users\User\Desktop\drones\opt_dan\downloads\my_cutter_res\porabola\res1280x720"
+# img_folder = r"C:\Users\User\Desktop\drones\opt_dan\downloads\my_cutter_res\goldencut\res1280x720"
 images = sorted(os.listdir(img_folder))
 
 # Параметры детектора и трекера
 feature_params = dict(maxCorners=1000, qualityLevel=0.1, minDistance=5, blockSize=7)
-lk_params = dict(winSize=(15,15), maxLevel=2,
+lk_params = dict(winSize=(15,15), maxLevel=10,
                  criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01),
                  flags=0, minEigThreshold=1e-4)
 
 # Чтение первого кадра
 frame_idx = 0
-SIZE = (1024,1024)
+SIZE = (1024, 1024)
 old_frame = cv2.imread(os.path.join(img_folder, images[0]))
 old_frame = cv2.resize(old_frame, SIZE)
 
@@ -59,8 +62,10 @@ for img_name in tqdm(images[1:]):
             angle = np.arctan2(M[1,0], M[0,0])
             theta += angle
             # обновляем позицию с учётом поворота
-            R = np.array([[np.cos(theta), -np.sin(theta)],
-                          [np.sin(theta),  np.cos(theta)]])
+            R = np.array( [[np.cos(theta), -np.sin(theta)],
+                          [np.sin(theta),  np.cos(theta)]] )
+            
+
             pos += R @ np.array([dx, dy]) * scale
            
             pos = alpha * pos + (1 - alpha) * prev_pos
@@ -73,7 +78,8 @@ for img_name in tqdm(images[1:]):
 
 # Визуализация траектории
 traj = np.array(trajectory_points)
-np.save("C:\\Users\\User\\Desktop\\drones\\opt_dan\\coords\\optflow_trajectory_rot.npy", traj)
+# np.save("C:\\Users\\User\\Desktop\\drones\\opt_dan\\coords\\optflow_trajectory_rot.npy", traj)
+# np.save("C:\\Users\\User\\Desktop\\drones\\opt_dan\\coords\\optflow_trajectory_rot1.npy", traj)
 
 plt.figure()
 plt.plot(traj[:,0], traj[:,1], '-o', color='blue', markersize=3)
