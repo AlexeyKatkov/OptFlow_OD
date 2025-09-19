@@ -7,21 +7,25 @@ import matplotlib.pyplot as plt
 # img_folder = "/media/nil-risu/Files/gridsearch/0000/frames"
 # img_folder = "C:\\Users\\User\\Desktop\\drones\\opt_dan\\downloads\\0000\\frames"
 # img_folder = r"C:\Users\User\Desktop\drones\opt_dan\downloads\my_cutter_res\diagonal_target_frames_step25_size_1024"
-img_folder = r"C:\Users\User\Desktop\drones\opt_dan\downloads\my_cutter_res\porabola\res1280x720"
+# img_folder = r"C:\Users\User\Desktop\drones\opt_dan\downloads\my_cutter_res\porabola\res1280x720"
 # img_folder = r"C:\Users\User\Desktop\drones\opt_dan\downloads\my_cutter_res\goldencut\res1280x720"
+img_folder = r'/media/nil-risu/Files/gridsearch/0000/KITTI_sample/images/'
+
+
+
 images = sorted(os.listdir(img_folder))
 
 # Параметры детектора и трекера
-feature_params = dict(maxCorners=1000, qualityLevel=0.1, minDistance=5, blockSize=7)
-lk_params = dict(winSize=(15,15), maxLevel=10,
+feature_params = dict(maxCorners=10000, qualityLevel=0.1, minDistance=5, blockSize=7)
+lk_params = dict(winSize=(15,15), maxLevel=100,
                  criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01),
                  flags=0, minEigThreshold=1e-4)
 
 # Чтение первого кадра
 frame_idx = 0
-SIZE = (1024, 1024)
+SIZE = (1241,376)
 old_frame = cv2.imread(os.path.join(img_folder, images[0]))
-old_frame = cv2.resize(old_frame, SIZE)
+# old_frame = cv2.resize(old_frame, SIZE)
 
 old_gray = cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
 p0 = cv2.goodFeaturesToTrack(old_gray, mask=None, **feature_params)
@@ -35,7 +39,7 @@ trajectory_points = []
 
 for img_name in tqdm(images[1:]):
     frame = cv2.imread(os.path.join(img_folder, img_name))
-    frame = cv2.resize(frame, SIZE)
+    # frame = cv2.resize(frame, SIZE)
     frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     # Переинициализация точек, если мало
@@ -75,6 +79,7 @@ for img_name in tqdm(images[1:]):
     # обновляем треки
     p0 = good_new.reshape(-1,1,2).astype(np.float32)
     old_gray = frame_gray.copy()
+    
 
 # Визуализация траектории
 traj = np.array(trajectory_points)
