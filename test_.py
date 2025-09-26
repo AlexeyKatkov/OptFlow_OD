@@ -6,7 +6,9 @@ import matplotlib.pyplot as plt
 
 # img_folder = r"C:\Users\User\Desktop\drones\opt_dan\downloads\my_cutter_res\porabola\res1280x720"
 # img_folder = "C:\\Users\\User\\Desktop\\drones\\opt_dan\\downloads\\0000\\frames"
-img_folder = "/media/nil-risu/Files/gridsearch/0000/frames"
+# img_folder = "/media/nil-risu/Files/gridsearch/0000/frames"
+img_folder = r"C:\Users\User\Desktop\drones\opt_dan\downloads\my_cutter_res\porabola\res1280x720"
+
 
 images = sorted(os.listdir(img_folder))
 
